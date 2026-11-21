@@ -23,7 +23,7 @@ if exist('ACTIVE_ENVIRONMENT', 'var') && ACTIVE_ENVIRONMENT == true
     map.bl_corner_east = 0;
 
     map.nb_blocks = 4; % the number of blocks per row
-    map.street_width_perc = 0.5; % percentage of block that is empty
+    map.street_width_perc = 0.9; % percentage of block that is empty
 
     map.building_width = map.width/map.nb_blocks*(1-map.street_width_perc);
     map.street_width = map.width/map.nb_blocks*map.street_width_perc;

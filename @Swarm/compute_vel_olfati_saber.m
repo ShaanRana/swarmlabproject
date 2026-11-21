@@ -45,16 +45,52 @@ function [vel_command, collisions] = compute_vel_olfati_saber(self, p_swarm, r_a
     D = zeros(nb_agents, nb_agents);    % Distance matrix
     acc_pm = zeros(3, nb_agents);       % Position matching acceleration
     acc_vm = zeros(3, nb_agents);       % Velocity matching acceleration
+    acc_formation = zeros(3, nb_agents);
     acc_wall = zeros(3, nb_agents);     % Arena repulsion acceleration
     acc_obs = zeros(3, nb_agents);      % Obstacle repulsion acceleration
     acc_command = zeros(3, nb_agents);  % Calculate the commanded acceleration
     vel_command = zeros(3, nb_agents);  % Calculate the commanded velocity
-
+    form_offsets = zeros(3, nb_agents);
+    
     nb_agent_collisions = 0;    % Nb of collisions among agents
     nb_obs_collisions = 0;      % Nb of collisions against obstacles
     min_dist_obs = 20;          % Init minimum distance to obstacles
 
-    
+
+    swarm_centre = mean(pos,2);
+    %disp(swarm_centre)
+    centre_pos = (nb_agents+1)/2;
+    angle_separation = (2*pi)/nb_agents;
+    radius = (nb_agents*p_swarm.spacing)/(2*pi);
+    Echelon_Angle = 45;
+    Echelon_Type = 1; %1 - Left Echelon, -1 - Right Echelon
+
+    for i=1:nb_agents
+        if p_swarm.formation_type==1
+    form_offsets(:,i) = [p_swarm.spacing*(-(i-1));0;0];
+        elseif p_swarm.formation_type==2
+            form_offsets(:,i) = [0;p_swarm.spacing*(i-centre_pos);0];
+        elseif p_swarm.formation_type==3
+            form_offsets(:,i) = [-abs(p_swarm.spacing*(i-4));p_swarm.spacing*(i-4);0];
+        elseif p_swarm.formation_type==4
+            angle = (i-1)*angle_separation;
+            form_offsets(:,i) = [radius*cos(angle);radius*sin(angle);0];
+        elseif p_swarm.formation_type==5
+            form_offsets(:,i) = [p_swarm.spacing*cos(Echelon_Angle)*(i-centre_pos);Echelon_Type*p_swarm.spacing*sin(Echelon_Angle)*(i-centre_pos);0];
+        else
+        end
+    end
+
+form_offsets = form_offsets - mean(form_offsets,2);
+ 
+ideal_pos= swarm_centre+form_offsets;
+form_error=ideal_pos-pos;
+acc_formation=p_swarm.coefficient*form_error;
+
+
+
+
+
     %% Compute velocity commands for every agent
     
     for agent = 1:nb_agents
@@ -217,7 +253,7 @@ function [vel_command, collisions] = compute_vel_olfati_saber(self, p_swarm, r_a
         %% Sum contributions
 
         acc_command(:, agent) = acc_pm(:, agent) + acc_vm(:, agent) + ...
-            +acc_wall(:, agent) + acc_obs(:, agent);
+            +acc_wall(:, agent) + acc_obs(:, agent) + acc_formation(:, agent);
 
         % Integrate acceleration to get velocity
         vel_command(:, agent) = vel(:, agent) + acc_command(:, agent) * dt;

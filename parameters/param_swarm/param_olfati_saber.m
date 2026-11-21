@@ -23,3 +23,10 @@ p_swarm.r0 = 10;
 p_swarm.lambda = 1;               % (0,1]
 p_swarm.c_pm_obs = 5;
 p_swarm.c_vm_obs = p_swarm.c_vm;
+
+
+%% Formation Matching Parameters
+
+p_swarm.formation_type=5;   % 1 - Column    2 - Line    3 - Arrow   4 - Circle  5 - Echelon
+p_swarm.coefficient=0.5;
+p_swarm.spacing=25;
