@@ -27,6 +27,7 @@ p_swarm.c_vm_obs = p_swarm.c_vm;
 
 %% Formation Matching Parameters
 
-p_swarm.formation_type=5;   % 1 - Column    2 - Line    3 - Arrow   4 - Circle  5 - Echelon
-p_swarm.coefficient=0.5;
+p_swarm.formation_type=3;   % 1 - Column    2 - Line    3 - Arrow   4 - Circle  5 - Echelon
+p_swarm.coefficient=0.5; %NEED TO TUNE
 p_swarm.spacing=25;
+p_swarm.max_acc_form=40; %NEED TO CHANGE

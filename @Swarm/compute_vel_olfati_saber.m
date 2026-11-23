@@ -57,13 +57,12 @@ function [vel_command, collisions] = compute_vel_olfati_saber(self, p_swarm, r_a
     min_dist_obs = 20;          % Init minimum distance to obstacles
 
 
-    swarm_centre = mean(pos,2);
-    %disp(swarm_centre)
+    %swarm_centre = mean(pos,2);
     centre_pos = (nb_agents+1)/2;
     angle_separation = (2*pi)/nb_agents;
     radius = (nb_agents*p_swarm.spacing)/(2*pi);
     Echelon_Angle = 45;
-    Echelon_Type = 1; %1 - Left Echelon, -1 - Right Echelon
+    Echelon_Type = -1; %1 - Left Echelon, -1 - Right Echelon
 
     for i=1:nb_agents
         if p_swarm.formation_type==1
@@ -81,11 +80,11 @@ function [vel_command, collisions] = compute_vel_olfati_saber(self, p_swarm, r_a
         end
     end
 
-form_offsets = form_offsets - mean(form_offsets,2);
+%form_offsets = form_offsets - mean(form_offsets,2);
  
-ideal_pos= swarm_centre+form_offsets;
-form_error=ideal_pos-pos;
-acc_formation=p_swarm.coefficient*form_error;
+%ideal_pos= swarm_centre+form_offsets;
+%form_error=ideal_pos-pos;
+%acc_formation=p_swarm.coefficient*form_error;
 
 
 
@@ -133,7 +132,26 @@ acc_formation=p_swarm.coefficient*form_error;
         % Adjacency matrix (asymmetric in case of limited fov)
         M(agent, neig_lis) = 1;
 
+        %% Formation Code
+        if nb_neig~=0
+            for agent2=neig_lis'
+                rel_pos_ideal = form_offsets(:,agent2)-form_offsets(:,agent);
+                rel_pos_real = pos(:,agent2)-pos(:,agent);
+                rel_pos_error = rel_pos_real-rel_pos_ideal;
+                acc_formation(:,agent) = acc_formation(:,agent)+(p_swarm.coefficient*rel_pos_error);
+            end
+        end
+
+        for k=1:nb_agents
+            if norm(acc_formation(:,k))>p_swarm.max_acc_form
+                acc_formation(:,k) = p_swarm.max_acc_form*(acc_formation(:,k)/norm(acc_formation(:,k)));
+            else
+            end
+        end
+
         
+            
+
         %% Compute different contributions
         
         if nb_neig ~= 0
